@@ -6,7 +6,7 @@ Other: [[RGB LED LAMP](https://github.com/DrA1ex/esp_led_lamp)] [[LED](https://g
 
 ## UI
 
-<img width="382" alt="image" src="https://github.com/user-attachments/assets/a2eba0ad-ee8d-491d-8ac3-008b8cd79ef4" />
+<img width="380" alt="esp_pid_screenshot" src="https://github.com/user-attachments/assets/8aa85683-2871-4ea3-8423-e9de9750f06d" />
 
 
 ## Features
