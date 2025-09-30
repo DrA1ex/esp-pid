@@ -43,6 +43,7 @@ DECLARE_META(DataConfigMeta, AppMetaProperty,
 
     MEMBER(Parameter<float>, sensor_value),
     MEMBER(Parameter<float>, control_value),
+    MEMBER(ComplexParameter<DataHistory>, history),
 )
 
 DECLARE_META(SysConfigMeta, AppMetaProperty,
@@ -186,6 +187,7 @@ inline ConfigMetadata build_metadata(Config &config, RuntimeInfo &runtime_info) 
 
             .sensor_value = Parameter(&runtime_info.sensor_value),
             .control_value = Parameter(&runtime_info.control_value),
+            .history = ComplexParameter(&runtime_info.history),
         }
     };
 }

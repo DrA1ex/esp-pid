@@ -29,7 +29,7 @@ void Application::begin() {
     _night_mode_manager = std::make_unique<NightModeManager>(*_ntp_time, _bootstrap->timer(), _bootstrap->config());
 
     _night_mode_manager->event_night_mode().subscribe(this, [this](auto sender, auto state, auto arg) {
-        _night_mode_state_changed(sender, state, arg);
+        _load();
     });
 
     if (config().regulator.sensor.type == SensorType::DSX18X) {
@@ -108,6 +108,7 @@ void Application::_setup() {
 
     ws_server->register_notification(PacketType::SENSOR_VALUE, _metadata->data.sensor_value);
     ws_server->register_notification(PacketType::CONTROL_VALUE, _metadata->data.control_value);
+    ws_server->register_notification(PacketType::HISTORY_DATA, _metadata->data.history);
 
     ws_server->register_data_request(PacketType::GET_CONFIG, _metadata->data.config);
     ws_server->register_data_request(PacketType::GET_STATE, _metadata->data.state);
@@ -119,6 +120,11 @@ void Application::_setup() {
 }
 
 void Application::_load() {
+    bool active = config().power && !_night_mode_manager->active();
+    if (!active) _pid->integral = 0;
+
+    change_state(active ? AppState::ACTIVE : AppState::INACTIVE);
+
     auto &pid_cfg = config().regulator.pid;
     _pid->setpoint = pid_cfg.target;
 
@@ -160,12 +166,7 @@ void Application::_handle_property_change(const AbstractParameter *parameter) {
     _load();
 
     auto type = it->second;
-    if (type == PacketType::POWER) {
-        bool active = config().power && !(config().night_mode.enabled && _night_mode_manager->active());
-        if (!active) _pid->integral = 0;
-
-        change_state(active ? AppState::ACTIVE : AppState::INACTIVE);
-    } else if (type >= PacketType::NIGHT_MODE_ENABLED && type <= PacketType::NIGHT_MODE_END) {
+    if (type >= PacketType::NIGHT_MODE_ENABLED && type <= PacketType::NIGHT_MODE_END) {
         _night_mode_manager->update();
     }
 
@@ -206,8 +207,16 @@ void Application::_service_loop() {
 
     D_PRINTF("Sensor: %f; Control: %f\r\n", value, out);
 
+    _runtime_info.history.entries[_runtime_info.history.index] = {
+        .sensor = value,
+        .control = out,
+    };
+
+    _runtime_info.history.index = (_runtime_info.history.index + 1) % HISTORY_COUNT;
+
     _bootstrap->ws_server()->send_notification(PacketType::SENSOR_VALUE);
     _bootstrap->ws_server()->send_notification(PacketType::CONTROL_VALUE);
+    _bootstrap->ws_server()->send_notification(PacketType::HISTORY_DATA);
 }
 
 void Application::_bootstrap_service_loop() {
@@ -225,15 +234,5 @@ void Application::_bootstrap_state_changed(void *sender, BootstrapState state, v
         _initialized = true;
 
         change_state(config().power ? AppState::ACTIVE : AppState::INACTIVE);
-    }
-}
-
-void Application::_night_mode_state_changed(void *sender, NightModeState state, void *arg) {
-    if (!config().power) return;
-
-    if (state == NightModeState::ACTIVE) {
-        change_state(AppState::ACTIVE);
-    } else if (state == NightModeState::WAITING) {
-        change_state(AppState::INACTIVE);
     }
 }

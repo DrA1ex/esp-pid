@@ -24,7 +24,7 @@ export const PropertyConfig = [{
                 "Sensor:",
                 `${value.toFixed(2)}`
             ]
-        },{
+        }, {
             key: "status.control_value", type: "label", kind: "Float32",
             cmd: PacketType.CONTROL_VALUE,
             displayConverter: (value) => [
@@ -32,6 +32,8 @@ export const PropertyConfig = [{
                 `${(value * 100).toFixed(0)}%`
             ]
         },
+
+        {key: "status.history", type: "skip", kind: "Binary", cmd: PacketType.HISTORY_DATA},
     ]
 }, {
     key: "general", section: "General", props: [

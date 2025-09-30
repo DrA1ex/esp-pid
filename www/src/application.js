@@ -1,4 +1,4 @@
-import {AppConfigBase, ApplicationBase} from "./lib/index.js";
+import {AppConfigBase, ApplicationBase, BinaryParser} from "./lib/index.js";
 import {Config} from "./config.js";
 import {PropertyConfig} from "./props.js";
 
@@ -46,6 +46,14 @@ export class Application extends ApplicationBase {
         this.propertyMeta["apply_sensor_config"].control.setOnClick(this.applySysConfig.bind(this));
         this.propertyMeta["apply_control_config"].control.setOnClick(this.applySysConfig.bind(this));
         this.propertyMeta["apply_sys_config"].control.setOnClick(this.applySysConfig.bind(this));
+
+        this.subscribe(this, this.Event.Notification, this.#onNotification.bind(this));
+    }
+
+    #onNotification(sender, {key, value}) {
+        if (key === "status.history") {
+            this.config.parseHistory(new BinaryParser(value.buffer, value.byteOffset));
+        }
     }
 
     async applySysConfig(sender) {

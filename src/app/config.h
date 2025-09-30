@@ -91,7 +91,21 @@ struct __attribute ((packed)) Config {
     SysConfig sys_config{};
 };
 
+struct __attribute ((packed)) HistoryEntry {
+    float sensor = NAN;
+    float control = NAN;
+};
+
+struct __attribute ((packed)) DataHistory {
+    const uint16_t count = HISTORY_COUNT;
+
+    uint16_t index = 0;
+    HistoryEntry entries[HISTORY_COUNT]{};
+};
+
 struct __attribute ((packed)) RuntimeInfo {
     float sensor_value;
     float control_value;
+
+    DataHistory history;
 };

@@ -64,7 +64,6 @@ private:
 
     void _on_bootstrap_ready();
     void _bootstrap_state_changed(void *sender, BootstrapState state, void *arg);
-    void _night_mode_state_changed(void *sender, NightModeState state, void *arg);
 
     void _service_loop();
     void _bootstrap_service_loop();

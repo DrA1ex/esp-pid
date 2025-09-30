@@ -18,6 +18,8 @@
 #define ANALOG_PIN                              (2u)
 #define PWM_PIN                                 (0u)
 
+#define HISTORY_COUNT                           (128u)
+
 #define MQTT                                    (0)                     // Enable MQTT server
 
 #define MQTT_CONNECTION_TIMEOUT                 (15000u)                // Connection attempt timeout to MQTT server

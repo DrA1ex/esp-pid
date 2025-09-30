@@ -6,6 +6,7 @@ export const PacketType = {
 
     SENSOR_VALUE: 0x10,
     CONTROL_VALUE: 0x11,
+    HISTORY_DATA: 0x12,
 
     NIGHT_MODE_ENABLED: 0x20,
     NIGHT_MODE_START: 0x21,

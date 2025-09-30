@@ -97,6 +97,23 @@ export class Config extends AppConfigBase {
         };
     }
 
+    parseHistory(parser) {
+        const result = {
+            count: parser.readUint16(),
+            index: parser.readUint16(),
+        }
+
+        result.entries = new Array(result.count)
+        for (let i = 0; i < result.count; i++) {
+            result.entries[i] = {
+                sensor: parser.readFloat32(),
+                control: parser.readFloat32(),
+            }
+        }
+
+        return result;
+    }
+
     #parseSensor() {
         const parser = new BinaryParser(this.sensor.data.buffer, this.sensor.data.byteOffset);
 
@@ -131,6 +148,8 @@ export class Config extends AppConfigBase {
         return {
             sensor_value: parser.readFloat32(),
             control_value: parser.readFloat32(),
-        }
+
+            history: this.parseHistory(parser)
+        };
     }
 }
