@@ -13,6 +13,10 @@ export class Chart extends Control {
         this.#ctx = element.getContext("2d");
         this.addClass("chart");
 
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            this.render();
+        });
+
         window.addEventListener("resize", this.#resize.bind(this));
         setTimeout(() => this.#resize(), 0);
     }
