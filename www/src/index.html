@@ -23,6 +23,21 @@
 
     <link rel="stylesheet" href="./lib/style.css">
     <script type="module" src="./index.js"></script>
+
+    <style>
+        canvas.chart {
+            width: calc(100% - 1rem);
+            aspect-ratio: 3 / 1;
+            padding: 0.5rem;
+            background: var(--control-color-active);
+            box-shadow: var(--control-shadow);
+            border-radius: 0.75rem;
+
+            --chart-sensor: #c41700;
+            --chart-control: #00c488;
+            --chart-text: var(--text-color);
+        }
+    </style>
 </head>
 <body>
 <div id="status" class="status">LOADING</div>

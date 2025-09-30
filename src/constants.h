@@ -18,7 +18,7 @@
 #define ANALOG_PIN                              (2u)
 #define PWM_PIN                                 (0u)
 
-#define HISTORY_COUNT                           (128u)
+#define HISTORY_COUNT                           (256u)
 
 #define MQTT                                    (0)                     // Enable MQTT server
 
@@ -36,5 +36,3 @@
 #define MQTT_OUT_TOPIC_SENSOR                   MQTT_OUT_PREFIX "/sensor"
 #define MQTT_OUT_TOPIC_CONTROL                  MQTT_OUT_PREFIX "/control"
 #define MQTT_OUT_TOPIC_NIGHT_MODE               MQTT_OUT_PREFIX "/night_mode"
-
-#include "./_override/credentials.h"

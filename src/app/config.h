@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <lib/network/wifi.h>
 #include <lib/utils/enum.h>
 
@@ -51,7 +53,7 @@ struct __attribute ((packed)) SensorConfig {
 
     SensorConfig() : type(SensorType::DSX18X), data{} {
         DSx18SensorConfig ds_config;
-        std::memcpy(data, &ds_config, sizeof(DSx18SensorConfig));
+        memcpy(data, &ds_config, sizeof(DSx18SensorConfig));
     }
 };
 
@@ -61,7 +63,7 @@ struct __attribute ((packed)) ControlConfig {
 
     ControlConfig() : type(ControlType::PWM_VALUE), data{} {
         PwmControlConfig pwn_config;
-        std::memcpy(data, &pwn_config, sizeof(PwmControlConfig));
+        memcpy(data, &pwn_config, sizeof(PwmControlConfig));
     }
 };
 

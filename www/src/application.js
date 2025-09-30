@@ -1,4 +1,4 @@
-import {AppConfigBase, ApplicationBase, BinaryParser} from "./lib/index.js";
+import {ApplicationBase, BinaryParser} from "./lib/index.js";
 import {Config} from "./config.js";
 import {PropertyConfig} from "./props.js";
 
@@ -12,6 +12,7 @@ import {
 } from "./constants.js";
 
 import {PacketType} from "./cmd.js";
+import {Chart} from "./control/chart.js";
 
 export class Application extends ApplicationBase {
     #config;
@@ -47,13 +48,24 @@ export class Application extends ApplicationBase {
         this.propertyMeta["apply_control_config"].control.setOnClick(this.applySysConfig.bind(this));
         this.propertyMeta["apply_sys_config"].control.setOnClick(this.applySysConfig.bind(this));
 
-        this.subscribe(this, this.Event.Notification, this.#onNotification.bind(this));
+        this.subscribe(null, this.Event.Notification, this.#onNotification.bind(this));
     }
 
     #onNotification(sender, {key, value}) {
         if (key === "status.history") {
-            this.config.parseHistory(new BinaryParser(value.buffer, value.byteOffset));
+            const parsed = this.config.parseHistory(new BinaryParser(value.buffer, value.byteOffset));
+
+            const {control} = this.propertyMeta["status.history"];
+            control.setValue(parsed);
         }
+    }
+
+    buildControl(prop) {
+        if (prop.type === "chart") {
+            return new Chart(document.createElement("canvas"));
+        }
+
+        return super.buildControl(prop);
     }
 
     async applySysConfig(sender) {

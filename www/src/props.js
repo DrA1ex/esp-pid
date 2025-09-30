@@ -33,7 +33,7 @@ export const PropertyConfig = [{
             ]
         },
 
-        {key: "status.history", type: "skip", kind: "Binary", cmd: PacketType.HISTORY_DATA},
+        {key: "status.history", type: "chart", kind: "Binary", cmd: PacketType.HISTORY_DATA},
     ]
 }, {
     key: "general", section: "General", props: [

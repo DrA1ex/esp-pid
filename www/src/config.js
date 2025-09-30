@@ -148,8 +148,6 @@ export class Config extends AppConfigBase {
         return {
             sensor_value: parser.readFloat32(),
             control_value: parser.readFloat32(),
-
-            history: this.parseHistory(parser)
         };
     }
 }
