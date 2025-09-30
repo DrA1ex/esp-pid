@@ -77,14 +77,25 @@ export const PropertyConfig = [{
     ]
 }, {
     key: "pid", section: "PID-R", collapse: true, props: [
-        {key: "pid.target", title: "Target value", type: "float", kind: "Float32", cmd: PacketType.PID_TARGET},
-        {key: "pid.interval", title: "Refresh interval", type: "int", kind: "Uint16", cmd: PacketType.PID_INTERVAL},
+        {key: "pid.target", title: "Target Value", type: "float", kind: "Float32", cmd: PacketType.PID_TARGET},
+        {key: "pid.interval", title: "Refresh Interval (ms)", type: "int", kind: "Uint16", cmd: PacketType.PID_INTERVAL},
+
         {type: "title", label: "Coefficients"},
         {key: "pid.p", title: "kP", type: "float", kind: "Float32", cmd: PacketType.PID_P, transform: fix_float},
         {key: "pid.i", title: "kI", type: "float", kind: "Float32", cmd: PacketType.PID_I, transform: fix_float},
         {key: "pid.d", title: "kD", type: "float", kind: "Float32", cmd: PacketType.PID_D, transform: fix_float},
+
+        {type: "title", label: "Output Limits"},
+        {key: "pid.outMax", title: "Max Output", type: "float", kind: "Float32", cmd: PacketType.PID_OUT_MAX, transform: fix_float},
+        {key: "pid.outMin", title: "Min Output", type: "float", kind: "Float32", cmd: PacketType.PID_OUT_MIN, transform: fix_float},
+
         {type: "title", label: "Advanced"},
-        {key: "pid.reverse", title: "Reverse", type: "trigger", kind: "Boolean", cmd: PacketType.PID_REVERSE}
+        {key: "pid.kbc", title: "Back Calculation (kBC)", type: "float", kind: "Float32", cmd: PacketType.PID_KBC, transform: fix_float},
+        {key: "pid.pMode", title: "Proportional Mode", type: "select", kind: "Uint8", list: "proportionalMode", cmd: PacketType.PID_P_MODE},
+        {key: "pid.iMode", title: "Integral Mode", type: "select", kind: "Uint8", list: "integralMode", cmd: PacketType.PID_I_MODE},
+        {key: "pid.iLimit", title: "Integral Limit Mode", type: "select", kind: "Uint8", list: "integralLimitMode", cmd: PacketType.PID_I_LIMIT},
+        {key: "pid.dMode", title: "Differential Mode", type: "select", kind: "Uint8", list: "differentialMode", cmd: PacketType.PID_D_MODE},
+        {key: "pid.direction", title: "Direction", type: "select", kind: "Uint8", list: "directionMode", cmd: PacketType.PID_DIRECTION}
     ]
 }, {
     key: "system", section: "System Settings", collapse: true, props: [

@@ -31,6 +31,33 @@ export class Config extends AppConfigBase {
         this.lists["controlType"] = [
             {code: 0, name: "PWM"},
         ]
+
+        this.lists["proportionalMode"] = [
+            {code: 0, name: "Error"},
+            {code: 1, name: "Input"}
+        ];
+
+        this.lists["integralMode"] = [
+            {code: 0, name: "Outside"},
+            {code: 1, name: "Inside"}
+        ];
+
+        this.lists["integralLimitMode"] = [
+            {code: 0, name: "None"},
+            {code: 1, name: "Saturate"},
+            {code: 2, name: "Back Calculation"},
+            {code: 4, name: "Reset"}
+        ];
+
+        this.lists["differentialMode"] = [
+            {code: 0, name: "Error"},
+            {code: 1, name: "Input"}
+        ];
+
+        this.lists["directionMode"] = [
+            {code: 0, name: "Forward"},
+            {code: 1, name: "Reverse"}
+        ];
     }
 
     get cmd() {return PacketType.GET_CONFIG;}
@@ -61,13 +88,21 @@ export class Config extends AppConfigBase {
 
         this.pid = {
             target: parser.readFloat32(),
+            interval: parser.readUint16(),
 
             p: parser.readFloat32(),
             i: parser.readFloat32(),
             d: parser.readFloat32(),
 
-            interval: parser.readUint16(),
-            reverse: parser.readBoolean()
+            outMax: parser.readFloat32(),
+            outMin: parser.readFloat32(),
+            kbc: parser.readFloat32(),
+
+            pMode: parser.readUint8(),
+            iMode: parser.readUint8(),
+            iLimit: parser.readUint8(),
+            dMode: parser.readUint8(),
+            direction: parser.readUint8()
         };
 
         this.nightMode = {

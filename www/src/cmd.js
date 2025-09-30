@@ -24,6 +24,14 @@ export const PacketType = {
     PID_D: 0x43,
     PID_INTERVAL: 0x44,
     PID_REVERSE: 0x45,
+    PID_OUT_MAX: 0x46,
+    PID_OUT_MIN: 0x47,
+    PID_KBC: 0x48,
+    PID_P_MODE: 0x49,
+    PID_I_MODE: 0x4A,
+    PID_I_LIMIT: 0x4B,
+    PID_D_MODE: 0x4C,
+    PID_DIRECTION: 0x4D,
 
     SYS_CONFIG_MDNS_NAME: 0x60,
 

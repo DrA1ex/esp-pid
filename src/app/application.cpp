@@ -133,8 +133,32 @@ void Application::_load() {
     _pid->setKd(pid_cfg.d);
     _pid->setDt(pid_cfg.interval);
 
-    if (pid_cfg.reverse) _pid->setMode(PID_REVERSE);
-    else _pid->clearMode(PID_REVERSE);
+    // Set output limits
+    _pid->outMax = pid_cfg.out_max;
+    _pid->outMin = pid_cfg.out_min;
+
+    // Set back calculation coefficient
+    _pid->Kbc = pid_cfg.kbc;
+
+    // Configure PID modes
+    uint8_t cfg = 0;
+    if (pid_cfg.p_mode == ProportionalMode::P_INPUT) cfg |= P_INPUT;
+    else cfg |= P_ERROR;
+
+    if (pid_cfg.i_mode == IntegralMode::I_KI_INSIDE) cfg |= I_KI_INSIDE;
+    else cfg |= I_KI_OUTSIDE;
+
+    if ((uint8_t) pid_cfg.i_limit & (uint8_t) IntegralLimitMode::I_SATURATE) cfg |= I_SATURATE;
+    if ((uint8_t) pid_cfg.i_limit & (uint8_t) IntegralLimitMode::I_BACK_CALC) cfg |= I_BACK_CALC;
+    if ((uint8_t) pid_cfg.i_limit & (uint8_t) IntegralLimitMode::I_RESET) cfg |= I_RESET;
+
+    if (pid_cfg.d_mode == DifferentialMode::D_INPUT) cfg |= D_INPUT;
+    else cfg |= D_ERROR;
+
+    if (pid_cfg.direction == DirectionMode::PID_REVERSE) cfg |= PID_REVERSE;
+    else cfg |= PID_FORWARD;
+
+    _pid->setConfig(cfg);
 }
 
 void Application::_notify_periodic_status() {

@@ -3,21 +3,15 @@
 #include <memory>
 
 #include <lib/network/wifi.h>
-#include <lib/utils/enum.h>
 
 #include "credentials.h"
 #include "constants.h"
+#include "enum.h"
 #include "controls/base.h"
 #include "controls/pwm_control.h"
 #include "sensors/base.h"
 #include "sensors/dsx18_sensor.h"
 
-MAKE_ENUM_AUTO(AppState, uint8_t,
-    UNINITIALIZED,
-    INITIALIZATION,
-    ACTIVE,
-    INACTIVE,
-);
 
 typedef char ConfigString[CONFIG_STRING_SIZE];
 
@@ -67,15 +61,23 @@ struct __attribute ((packed)) ControlConfig {
     }
 };
 
-struct __attribute ((packed)) PidConfig {
-    float target = 30;
+struct __attribute__((packed)) PidConfig {
+    float target = 30;        // Setpoint
+    uint16_t interval = 1000; // Sampling period in ms (dt)
 
-    float p = 1;
-    float i = 0.05;
-    float d = 0;
+    float p = 1;    // Proportional coefficient (Kp)
+    float i = 0.05; // Integral coefficient (Ki)
+    float d = 0;    // Differential coefficient (Kd)
 
-    uint16_t interval = 1000;
-    bool reverse = false;
+    float kbc = 0;      // Back calculation coefficient (Kbc)
+    float out_max = 255; // Maximum output
+    float out_min = 0;   // Minimum output
+
+    ProportionalMode p_mode = ProportionalMode::P_ERROR;   // Proportional mode
+    IntegralMode i_mode = IntegralMode::I_KI_OUTSIDE;      // Integral mode
+    IntegralLimitMode i_limit = IntegralLimitMode::I_NONE; // Integral limit mode
+    DifferentialMode d_mode = DifferentialMode::D_ERROR;   // Differential mode
+    DirectionMode direction = DirectionMode::PID_FORWARD; // Direction mode
 };
 
 struct __attribute ((packed)) RegulatorConfig {

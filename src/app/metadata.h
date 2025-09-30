@@ -18,11 +18,21 @@ DECLARE_META(ControlConfigMeta, AppMetaProperty,
 
 DECLARE_META(PidConfigMeta, AppMetaProperty,
     MEMBER(Parameter<float>, target),
+    MEMBER(Parameter<uint16_t>, interval),
+
     MEMBER(Parameter<float>, p),
     MEMBER(Parameter<float>, i),
     MEMBER(Parameter<float>, d),
-    MEMBER(Parameter<uint16_t>, interval),
-    MEMBER(Parameter<bool>, reverse)
+
+    MEMBER(Parameter<float>, out_max),
+    MEMBER(Parameter<float>, out_min),
+    MEMBER(Parameter<float>, kbc),
+
+    MEMBER(Parameter<uint8_t>, p_mode),
+    MEMBER(Parameter<uint8_t>, i_mode),
+    MEMBER(Parameter<uint8_t>, i_limit),
+    MEMBER(Parameter<uint8_t>, d_mode),
+    MEMBER(Parameter<uint8_t>, direction),
 )
 
 DECLARE_META(RegulatorConfigMeta, AppMetaProperty,
@@ -94,6 +104,10 @@ inline ConfigMetadata build_metadata(Config &config, RuntimeInfo &runtime_info) 
                     PacketType::PID_TARGET,
                     &config.regulator.pid.target
                 },
+                .interval = {
+                    PacketType::PID_INTERVAL,
+                    &config.regulator.pid.interval
+                },
                 .p = {
                     PacketType::PID_P,
                     &config.regulator.pid.p
@@ -106,13 +120,37 @@ inline ConfigMetadata build_metadata(Config &config, RuntimeInfo &runtime_info) 
                     PacketType::PID_D,
                     &config.regulator.pid.d
                 },
-                .interval = {
-                    PacketType::PID_INTERVAL,
-                    &config.regulator.pid.interval
+                .out_max = {
+                    PacketType::PID_OUT_MAX,
+                    &config.regulator.pid.out_max
                 },
-                .reverse = {
-                    PacketType::PID_REVERSE,
-                    &config.regulator.pid.reverse
+                .out_min = {
+                    PacketType::PID_OUT_MIN,
+                    &config.regulator.pid.out_min
+                },
+                .kbc = {
+                    PacketType::PID_KBC,
+                    &config.regulator.pid.kbc
+                },
+                .p_mode = {
+                    PacketType::PID_P_MODE,
+                    (uint8_t *) &config.regulator.pid.p_mode
+                },
+                .i_mode = {
+                    PacketType::PID_I_MODE,
+                    (uint8_t *) &config.regulator.pid.i_mode
+                },
+                .i_limit = {
+                    PacketType::PID_I_LIMIT,
+                    (uint8_t *) &config.regulator.pid.i_limit
+                },
+                .d_mode = {
+                    PacketType::PID_D_MODE,
+                    (uint8_t *) &config.regulator.pid.d_mode
+                },
+                .direction = {
+                    PacketType::PID_DIRECTION,
+                    (uint8_t *) &config.regulator.pid.direction
                 }
             }
         },

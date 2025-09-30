@@ -36,3 +36,5 @@
 #define MQTT_OUT_TOPIC_SENSOR                   MQTT_OUT_PREFIX "/sensor"
 #define MQTT_OUT_TOPIC_CONTROL                  MQTT_OUT_PREFIX "/control"
 #define MQTT_OUT_TOPIC_NIGHT_MODE               MQTT_OUT_PREFIX "/night_mode"
+
+#include "./_override/credentials.h"
