@@ -11,7 +11,7 @@ struct __attribute ((packed)) AnalogSensorConfig {
     uint8_t resolution = 8;
 };
 
-class AnalogSensor : SensorBase {
+class AnalogSensor : public SensorBase {
     AnalogSensorConfig _config;
 
     uint16_t _max_value = 0;

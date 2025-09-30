@@ -12,7 +12,7 @@ struct __attribute ((packed)) DSx18SensorConfig {
     bool parasite = false;
 };
 
-class DSx18Sensor : SensorBase {
+class DSx18Sensor : public SensorBase {
     Timer &_timer;
 
     DSx18SensorConfig _config;

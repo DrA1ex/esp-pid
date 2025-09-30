@@ -12,8 +12,11 @@
 #include "config.h"
 #include "metadata.h"
 #include "cmd.h"
-#include "controls/pwm_control.h"
+#include "poly_meta.h"
 #include "misc/night_mode.h"
+
+#include "controls/pwm_control.h"
+#include "sensors/analog_sensor.h"
 #include "sensors/dsx18_sensor.h"
 
 class Application {
@@ -22,9 +25,12 @@ class Application {
     std::unique_ptr<NightModeManager> _night_mode_manager = nullptr;
     std::unique_ptr<NtpTime> _ntp_time = nullptr;
 
-    std::unique_ptr<DSx18Sensor> _sensor = nullptr;
-    std::unique_ptr<PwmControl> _control = nullptr;
+    std::unique_ptr<SensorBase> _sensor = nullptr;
+    std::unique_ptr<ControlBase> _control = nullptr;
     std::unique_ptr<uPID> _pid = nullptr;
+
+    std::unique_ptr<AbstractMetaHolder> _sensor_meta = nullptr;
+    std::unique_ptr<AbstractMetaHolder> _control_meta = nullptr;
 
     RuntimeInfo _runtime_info{};
 

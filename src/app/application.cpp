@@ -1,5 +1,7 @@
 #include "application.h"
 
+#include "poly_meta.h"
+
 void Application::begin() {
     D_PRINT("Starting application...");
 
@@ -30,10 +32,25 @@ void Application::begin() {
         _night_mode_state_changed(sender, state, arg);
     });
 
-    _sensor = std::make_unique<DSx18Sensor>(_bootstrap->timer(), config().regulator.sensor.data);
+    if (config().regulator.sensor.type == SensorType::DSX18X) {
+        _sensor = std::make_unique<DSx18Sensor>(_bootstrap->timer(), config().regulator.sensor.data);
+        _sensor_meta = std::make_unique<MetaHolder<DSx18SensorConfigMeta>>(
+            build_dsx18_sensor_metadata(*(DSx18SensorConfig *) config().regulator.sensor.data)
+        );
+    } else {
+        _sensor = std::make_unique<AnalogSensor>(_bootstrap->timer(), config().regulator.sensor.data);
+        _sensor_meta = std::make_unique<MetaHolder<AnalogSensorConfigMeta>>(
+            build_analog_sensor_metadata(*(AnalogSensorConfig *) config().regulator.sensor.data)
+        );
+    }
+
     _sensor->begin();
 
     _control = std::make_unique<PwmControl>(_bootstrap->timer(), config().regulator.control.data);
+    _control_meta = std::make_unique<MetaHolder<PwmControlConfigMeta>>(
+        build_pwm_control_metadata(*(PwmControlConfig *) config().regulator.control.data)
+    );
+
     _control->begin();
 
     _pid = std::make_unique<uPID>();
@@ -85,6 +102,9 @@ void Application::_setup() {
 
     _metadata = std::make_unique<ConfigMetadata>(build_metadata(config(), _runtime_info));
     _metadata->visit(visit_fn);
+
+    _sensor_meta->visit(visit_fn);
+    _control_meta->visit(visit_fn);
 
     ws_server->register_notification(PacketType::SENSOR_VALUE, _metadata->data.sensor_value);
     ws_server->register_notification(PacketType::CONTROL_VALUE, _metadata->data.control_value);

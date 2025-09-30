@@ -10,7 +10,7 @@ struct __attribute ((packed)) PwmControlConfig {
     uint16_t period = 500;
 };
 
-class PwmControl : ControlBase {
+class PwmControl : public ControlBase {
     Timer &_timer;
 
     PwmControlConfig _config;
