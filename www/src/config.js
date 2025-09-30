@@ -143,6 +143,7 @@ export class Config extends AppConfigBase {
             result.entries[i] = {
                 sensor: parser.readFloat32(),
                 control: parser.readFloat32(),
+                integral: parser.readFloat32(),
             }
         }
 

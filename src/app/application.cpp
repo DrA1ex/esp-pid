@@ -234,6 +234,7 @@ void Application::_service_loop() {
     _runtime_info.history.entries[_runtime_info.history.index] = {
         .sensor = value,
         .control = out,
+        .integral = _pid->integral,
     };
 
     _runtime_info.history.index = (_runtime_info.history.index + 1) % HISTORY_COUNT;

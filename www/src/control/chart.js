@@ -1,4 +1,4 @@
-import { Control } from "../lib/index.js";
+import {Control} from "../lib/index.js";
 
 export class Chart extends Control {
     #ctx;
@@ -18,7 +18,7 @@ export class Chart extends Control {
     }
 
     #resize() {
-        const { width, height } = this.#canvas.getBoundingClientRect();
+        const {width, height} = this.#canvas.getBoundingClientRect();
         this.#canvas.width = width * this.#ratio;
         this.#canvas.height = height * this.#ratio;
 
@@ -37,13 +37,13 @@ export class Chart extends Control {
     render() {
         if (!this.#data) return;
         const ctx = this.#ctx;
-        const { count, index, entries } = this.#data;
+        const {count, index, entries} = this.#data;
 
-        const { width: w, height: h } = this.#canvas.getBoundingClientRect();
+        const {width: w, height: h} = this.#canvas.getBoundingClientRect();
         ctx.clearRect(0, 0, w, h);
         ctx.lineJoin = 'round';
 
-        const margins = { left: 40, right: 40, top: 10, bottom: 10 };
+        const margins = {left: 40, right: 40, top: 10, bottom: 10};
         const plotW = w - margins.left - margins.right;
         const plotH = h - margins.top - margins.bottom;
 
@@ -52,7 +52,8 @@ export class Chart extends Control {
 
         // Draw sensor and control lines
         this.#drawSeries(ordered.map(e => e.sensor), "--chart-sensor", toX, margins, plotH, ctx);
-        this.#drawSeries(ordered.map(e => e.control), "--chart-control", toX, margins, plotH, ctx, "right");
+        this.#drawSeries(ordered.map(e => e.control), "--chart-control", toX, margins, plotH, ctx);
+        this.#drawSeries(ordered.map(e => e.integral), "--chart-integral", toX, margins, plotH, ctx);
 
         // Draw axes
         this.#drawAxis(ctx, ordered.map(e => e.sensor), margins, plotH, "--chart-text", "left", w);
@@ -78,11 +79,11 @@ export class Chart extends Control {
         const yMin = min - pad;
         const yMax = max + pad;
         const scaleY = plotH / (yMax - yMin);
-        return { yMin, yMax, scaleY };
+        return {yMin, yMax, scaleY};
     }
 
     #drawSeries(values, cssVar, toX, margins, plotH, ctx) {
-        const { yMin, scaleY } = this.#computeScale(values, plotH);
+        const {yMin, scaleY} = this.#computeScale(values, plotH);
         const toY = v => margins.top + plotH - (v - yMin) * scaleY;
 
         ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
@@ -97,7 +98,7 @@ export class Chart extends Control {
     }
 
     #drawAxis(ctx, values, margins, plotH, cssVar, align, w) {
-        const { yMin, yMax } = this.#computeScale(values, plotH);
+        const {yMin, yMax} = this.#computeScale(values, plotH);
         ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
         ctx.font = "0.65rem sans-serif";
         ctx.textAlign = align;

@@ -98,6 +98,7 @@ struct __attribute ((packed)) Config {
 struct __attribute ((packed)) HistoryEntry {
     float sensor = NAN;
     float control = NAN;
+    float integral = NAN;
 };
 
 struct __attribute ((packed)) DataHistory {
