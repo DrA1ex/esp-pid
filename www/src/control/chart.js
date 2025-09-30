@@ -1,4 +1,4 @@
-import {Control} from "../lib/index.js";
+import { Control } from "../lib/index.js";
 
 export class Chart extends Control {
     #ctx;
@@ -18,12 +18,9 @@ export class Chart extends Control {
     }
 
     #resize() {
-        const rect = this.#canvas.getBoundingClientRect();
-        const w = rect.width;
-        const h = rect.height;
-
-        this.#canvas.width = w * this.#ratio;
-        this.#canvas.height = h * this.#ratio;
+        const { width, height } = this.#canvas.getBoundingClientRect();
+        this.#canvas.width = width * this.#ratio;
+        this.#canvas.height = height * this.#ratio;
 
         this.#ctx.setTransform(1, 0, 0, 1, 0, 0);
         this.#ctx.scale(this.#ratio, this.#ratio);
@@ -32,8 +29,7 @@ export class Chart extends Control {
     }
 
     setValue(value) {
-        if (!value || !value.count || !value.entries) return;
-
+        if (!value?.count || !value?.entries) return;
         this.#data = value;
         this.render();
     }
@@ -41,94 +37,77 @@ export class Chart extends Control {
     render() {
         if (!this.#data) return;
         const ctx = this.#ctx;
-        const {count, index, entries} = this.#data;
+        const { count, index, entries } = this.#data;
 
-        const rect = this.#canvas.getBoundingClientRect();
-        const w = rect.width;
-        const h = rect.height;
-
+        const { width: w, height: h } = this.#canvas.getBoundingClientRect();
         ctx.clearRect(0, 0, w, h);
+        ctx.lineJoin = 'round';
 
-        const marginLeft = 40;
-        const marginRight = 40;
-        const marginTop = 10;
-        const marginBottom = 10;
+        const margins = { left: 40, right: 40, top: 10, bottom: 10 };
+        const plotW = w - margins.left - margins.right;
+        const plotH = h - margins.top - margins.bottom;
 
-        const plotW = w - marginLeft - marginRight;
-        const plotH = h - marginTop - marginBottom;
+        const ordered = this.#getOrderedEntries(entries, count, index);
+        const toX = i => margins.left + i * (plotW / (count - 1));
 
+        // Draw sensor and control lines
+        this.#drawSeries(ordered.map(e => e.sensor), "--chart-sensor", toX, margins, plotH, ctx);
+        this.#drawSeries(ordered.map(e => e.control), "--chart-control", toX, margins, plotH, ctx, "right");
+
+        // Draw axes
+        this.#drawAxis(ctx, ordered.map(e => e.sensor), margins, plotH, "--chart-text", "left", w);
+        this.#drawAxis(ctx, ordered.map(e => e.control), margins, plotH, "--chart-text", "right", w);
+    }
+
+    #getOrderedEntries(entries, count, index) {
         const ordered = [];
         for (let i = 0; i < count; i++) {
             const pos = (index + i) % count;
             const entry = entries[pos];
-            if (Number.isNaN(entry.sensor) || Number.isNaN(entry.control)) continue;
-
-            ordered.push(entry);
+            if (!Number.isNaN(entry.sensor) && !Number.isNaN(entry.control)) {
+                ordered.push(entry);
+            }
         }
+        return ordered;
+    }
 
-        const scaleX = plotW / (count - 1);
-        const toX = i => marginLeft + i * scaleX;
+    #computeScale(values, plotH) {
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const pad = (max - min) * 0.1 || 1;
+        const yMin = min - pad;
+        const yMax = max + pad;
+        const scaleY = plotH / (yMax - yMin);
+        return { yMin, yMax, scaleY };
+    }
 
-        // === sensor ===
-        const sensorValues = ordered.map(e => e.sensor);
-        const sMin = Math.min(...sensorValues);
-        const sMax = Math.max(...sensorValues);
-        const sPad = (sMax - sMin) * 0.1 || 1;
-        const sYmin = sMin - sPad;
-        const sYmax = sMax + sPad;
-        const sScaleY = plotH / (sYmax - sYmin);
-        const sToY = v => marginTop + plotH - (v - sYmin) * sScaleY;
+    #drawSeries(values, cssVar, toX, margins, plotH, ctx) {
+        const { yMin, scaleY } = this.#computeScale(values, plotH);
+        const toY = v => margins.top + plotH - (v - yMin) * scaleY;
 
-        // === control ===
-        const controlValues = ordered.map(e => e.control);
-        const cMin = Math.min(...controlValues);
-        const cMax = Math.max(...controlValues);
-        const cPad = (cMax - cMin) * 0.1 || 1;
-        const cYmin = cMin - cPad;
-        const cYmax = cMax + cPad;
-        const cScaleY = plotH / (cYmax - cYmin);
-        const cToY = v => marginTop + plotH - (v - cYmin) * cScaleY;
-
-        // === sensor line ===
-        ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue("--chart-sensor").trim();
+        ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ordered.forEach((e, i) => {
+        values.forEach((val, i) => {
             const x = toX(i);
-            const y = sToY(e.sensor);
+            const y = toY(val);
             i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
         });
         ctx.stroke();
+    }
 
-        // === control line ===
-        ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue("--chart-control").trim();
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ordered.forEach((e, i) => {
-            const x = toX(i);
-            const y = cToY(e.control);
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-
-        ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue("--chart-text").trim();
+    #drawAxis(ctx, values, margins, plotH, cssVar, align, w) {
+        const { yMin, yMax } = this.#computeScale(values, plotH);
+        ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
         ctx.font = "0.65rem sans-serif";
-        ctx.textAlign = "left";
+        ctx.textAlign = align;
         ctx.textBaseline = "middle";
 
-        // === left axis (sensor) ===
         for (let i = 0; i <= 5; i++) {
-            const val = sYmax - (i / 5) * (sYmax - sYmin);
-            const y = marginTop + (plotH / 5) * i;
-            ctx.fillText(val.toFixed(2), 2, y);
-        }
-
-        // === right axis (control) ===
-        ctx.textAlign = "right";
-        for (let i = 0; i <= 5; i++) {
-            const val = cYmax - (i / 5) * (cYmax - cYmin);
-            const y = marginTop + (plotH / 5) * i;
-            ctx.fillText(val.toFixed(2), w - 2, y);
+            const val = yMax - (i / 5) * (yMax - yMin);
+            const y = margins.top + (plotH / 5) * i;
+            const x = align === "left" ? 2 : w - 2;
+            ctx.fillText(val.toFixed(2), x, y);
         }
     }
 }
