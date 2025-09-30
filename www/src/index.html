@@ -37,6 +37,15 @@
             --chart-control: #00c488;
             --chart-text: var(--text-color);
         }
+
+        .chart[data-loading=true] {
+            pointer-events: none;
+            background-image: linear-gradient(90deg, var(--control-color-1), var(--control-color-2), var(--control-color-1));
+            background-color: var(--control-color-1);
+            background-repeat: no-repeat;
+            background-size: 90% 100%;
+            animation: background-shift linear infinite 2s;
+        }
     </style>
 </head>
 <body>

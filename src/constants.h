@@ -18,7 +18,7 @@
 #define ANALOG_PIN                              (2u)
 #define PWM_PIN                                 (0u)
 
-#define HISTORY_COUNT                           (256u)
+#define HISTORY_COUNT                           (128u)
 
 #define MQTT                                    (0)                     // Enable MQTT server
 
