@@ -47,17 +47,6 @@ export class Application extends ApplicationBase {
         this.propertyMeta["apply_sensor_config"].control.setOnClick(this.applySysConfig.bind(this));
         this.propertyMeta["apply_control_config"].control.setOnClick(this.applySysConfig.bind(this));
         this.propertyMeta["apply_sys_config"].control.setOnClick(this.applySysConfig.bind(this));
-
-        this.subscribe(null, this.Event.Notification, this.#onNotification.bind(this));
-    }
-
-    #onNotification(sender, {key, value}) {
-        if (key === "status.history") {
-            const parsed = this.config.parseHistory(new BinaryParser(value.buffer, value.byteOffset));
-
-            const {control} = this.propertyMeta["status.history"];
-            control.setValue(parsed);
-        }
     }
 
     buildControl(prop) {

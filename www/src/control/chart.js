@@ -1,4 +1,4 @@
-import {Control} from "../lib/index.js";
+import {BinaryParser, Control} from "../lib/index.js";
 
 export class Chart extends Control {
     #ctx;
@@ -33,8 +33,24 @@ export class Chart extends Control {
     }
 
     setValue(value) {
-        if (!value?.count || !value?.entries) return;
-        this.#data = value;
+        if (!value) return;
+        
+        const parser = new BinaryParser(value.buffer, value.byteOffset);
+        const result = {
+            count: parser.readUint16(),
+            index: parser.readUint16(),
+        }
+
+        result.entries = new Array(result.count)
+        for (let i = 0; i < result.count; i++) {
+            result.entries[i] = {
+                sensor: parser.readFloat32(),
+                control: parser.readFloat32(),
+                integral: parser.readFloat32(),
+            }
+        }
+
+        this.#data = result;
         this.render();
     }
 
