@@ -44,7 +44,37 @@ export const PropertyConfig = [{
         {key: "nightMode.endTime", title: "End Time", type: "time", kind: "Uint32", cmd: PacketType.NIGHT_MODE_END},
     ]
 }, {
-    key: "pid", section: "PID", collapse: true, props: [
+    key: "sensor", section: "Sensor", collapse: true, props: [
+        {key: "sensor.type", title: "Type", type: "select", kind: "Uint8", list: "sensorType", cmd: PacketType.SENSOR_TYPE},
+
+        // ANALOG
+        {key: "sensor.parsed.analog", type: "skip"},
+        {key: "sensor.parsed.analog.pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.ANALOG_SENSOR_PIN, visibleIf: "sensor.parsed.analog"},
+        {key: "sensor.parsed.analog.resolution", title: "Resolution", type: "int", kind: "Uint8", min: 8, limit: 14, cmd: PacketType.ANALOG_SENSOR_RESOLUTION, visibleIf: "sensor.parsed.analog"},
+
+        // DSX18X
+        {key: "sensor.parsed.dsx18x", type: "skip"},
+        {key: "sensor.parsed.dsx18x.pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.DSX18_SENSOR_PIN, visibleIf: "sensor.parsed.dsx18x"},
+        {key: "sensor.parsed.dsx18x.resolution", title: "Resolution", type: "int", kind: "Uint8", min: 9, limit: 12, cmd: PacketType.DSX18_SENSOR_RESOLUTION, visibleIf: "sensor.parsed.dsx18x"},
+        {key: "sensor.parsed.dsx18x.parasite", title: "Parasite power", type: "trigger", kind: "Boolean", cmd: PacketType.DSX18_SENSOR_PARASITE, visibleIf: "sensor.parsed.dsx18x"},
+
+        {type: "title", label: "Actions", extra: {m_top: true}},
+        {key: "apply_control_config", type: "button", label: "Apply"},
+    ]
+}, {
+    key: "control", section: "Control", collapse: true, props: [
+        {key: "control.type", title: "Type", type: "select", kind: "Uint8", list: "controlType", cmd: PacketType.CONTROL_TYPE},
+
+        // PWM
+        {key: "control.parsed.pwm", type: "skip"},
+        {key: "control.parsed.pwm.pin", title: "Pin", type: "int", kind: "Uint8", cmd: PacketType.PWM_CONTROL_PIN, visibleIf: "control.parsed.pwm"},
+        {key: "control.parsed.pwm.period", title: "Period", type: "int", kind: "Uint16", cmd: PacketType.PWM_CONTROL_PERIOD, visibleIf: "control.parsed.pwm"},
+
+        {type: "title", label: "Actions", extra: {m_top: true}},
+        {key: "apply_sensor_config", type: "button", label: "Apply"},
+    ]
+}, {
+    key: "pid", section: "PID-R", collapse: true, props: [
         {key: "pid.target", title: "Target value", type: "float", kind: "Float32", cmd: PacketType.PID_TARGET},
         {key: "pid.interval", title: "Refresh interval", type: "int", kind: "Uint16", cmd: PacketType.PID_INTERVAL},
         {type: "title", label: "Coefficients"},

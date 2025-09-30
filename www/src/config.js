@@ -1,4 +1,4 @@
-import {AppConfigBase} from "./lib/index.js";
+import {AppConfigBase, BinaryParser} from "./lib/index.js";
 
 import {PropertyConfig} from "./props.js";
 import {PacketType} from "./cmd.js";
@@ -22,6 +22,15 @@ export class Config extends AppConfigBase {
             {code: 0, name: "AP"},
             {code: 1, name: "STA"},
         ];
+
+        this.lists["sensorType"] = [
+            {code: 0, name: "Analog"},
+            {code: 1, name: "DSX18X"},
+        ]
+
+        this.lists["controlType"] = [
+            {code: 0, name: "PWM"},
+        ]
     }
 
     get cmd() {return PacketType.GET_CONFIG;}
@@ -41,10 +50,14 @@ export class Config extends AppConfigBase {
             data: parser.readBinary(1024)
         };
 
+        this.#parseSensor();
+
         this.control = {
             type: parser.readUint8(),
             data: parser.readBinary(1024)
         };
+
+        this.#parseControl();
 
         this.pid = {
             target: parser.readFloat32(),
@@ -82,6 +95,36 @@ export class Config extends AppConfigBase {
             mqttUser: parser.readFixedString(32),
             mqttPassword: parser.readFixedString(32)
         };
+    }
+
+    #parseSensor() {
+        const parser = new BinaryParser(this.sensor.data.buffer, this.sensor.data.byteOffset);
+
+        this.sensor.parsed = {};
+        if (this.sensor.type === 0) { // ANALOG
+            this.sensor.parsed["analog"] = {
+                pin: parser.readUint8(),
+                resolution: parser.readUint8(),
+            }
+        } else if (this.sensor.type === 1) { // DSX18X
+            this.sensor.parsed["dsx18x"] = {
+                pin: parser.readUint8(),
+                resolution: parser.readUint8(),
+                parasite: parser.readBoolean(),
+            }
+        }
+    }
+
+    #parseControl() {
+        const parser = new BinaryParser(this.control.data.buffer, this.control.data.byteOffset);
+
+        this.control.parsed = {};
+        if (this.control.type === 0) { // PWM
+            this.control.parsed["pwm"] = {
+                pin: parser.readUint8(),
+                period: parser.readUint16(),
+            }
+        }
     }
 
     #parseState(parser) {
