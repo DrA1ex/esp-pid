@@ -78,6 +78,9 @@ export class Chart extends Control {
             axisScales[axisName] = this.#computeScale(values, plotHeight, axes[axisName]);
         }
 
+        // Draw grid
+        this.#drawGrid(ctx, margins, width, plotHeight, axes[series[0].axis || "default"].ticks);
+
         // Draw all series
         for (const s of series) {
             const scale = axisScales[s.axis || "default"];
@@ -89,7 +92,8 @@ export class Chart extends Control {
                 margins,
                 plotHeight,
                 ctx,
-                scale
+                scale,
+                s
             );
         }
 
@@ -125,12 +129,36 @@ export class Chart extends Control {
         return {yMin, yMax, scaleY};
     }
 
-    #drawSeries(values, strokeStyle, toX, margins, plotHeight, ctx, scale) {
+    #drawGrid(ctx, margins, width, height, ticks) {
+        ctx.save();
+
+        ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue("--chart-grid");
+        ctx.lineWidth = 1;
+        ctx.setLineDash([1, 4]);
+
+        for (let i = 0; i <= ticks; i++) {
+            const y = margins.top + (height / ticks) * i;
+            ctx.beginPath();
+            ctx.moveTo(margins.left, y);
+            ctx.lineTo(width - margins.right, y);
+            ctx.stroke();
+        }
+
+        ctx.restore();
+    }
+
+    #drawSeries(values, strokeStyle, toX, margins, plotHeight, ctx, scale, opts) {
         const {yMin, scaleY} = scale;
         const toY = v => margins.top + plotHeight - (v - yMin) * scaleY;
 
+
+        ctx.save();
         ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = 2;
+
+        if (opts.style === "dash") ctx.setLineDash([8, 4]);
+        else if (opts.style === "dot") ctx.setLineDash([1, 4]);
+
         ctx.beginPath();
 
         values.forEach((val, i) => {
@@ -142,14 +170,16 @@ export class Chart extends Control {
         });
 
         ctx.stroke();
+        ctx.restore();
     }
 
     #drawAxis(ctx, scale, axisCfg, margins, plotHeight, width) {
         const {yMin, yMax} = scale;
 
-        ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue(axisCfg.cssVar).trim() || "black";
-        ctx.font = "0.65rem sans-serif";
-        ctx.textAlign = axisCfg.side ?? "left";
+        const style = getComputedStyle(this.#canvas);
+        ctx.fillStyle = style.getPropertyValue("--chart-text");
+        ctx.font = `${style.getPropertyValue("font-size")} ${style.getPropertyValue("font-family")}`;
+        ctx.textAlign = axisCfg.side === "left" ? "left" : "right";
         ctx.textBaseline = "middle";
 
         const ticks = axisCfg.ticks ?? 5;

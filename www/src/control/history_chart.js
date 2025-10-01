@@ -8,12 +8,12 @@ export class HistoryChart extends Chart {
             margins: {left: 40, right: 40, top: 10, bottom: 10},
             axes: {
                 sensorAxis: {side: "right", cssVar: "--chart-text", ticks: 5},
-                controlAxis: {side: "left", cssVar: "--chart-text", ticks: 5, suggestedMin: 0, suggestedMax: 1},
+                controlAxis: {side: "left", cssVar: "--chart-text", ticks: 10, suggestedMin: 0, suggestedMax: 1},
             },
             series: [
                 {field: "sensor", cssVar: "--chart-sensor", axis: "sensorAxis"},
                 {field: "control", cssVar: "--chart-control", axis: "controlAxis"},
-                {field: "integral", cssVar: "--chart-integral", axis: "controlAxis"}
+                {field: "integral", cssVar: "--chart-integral", axis: "controlAxis", style: "dash"}
             ],
             data: null
         };

@@ -26,17 +26,22 @@
 
     <style>
         canvas.chart {
-            width: calc(100% - 1rem);
+            width: calc(100% - 2rem);
             aspect-ratio: 5 / 3;
-            padding: 0.5rem;
+            padding: 1rem;
+
             background: var(--control-color-active);
             box-shadow: var(--control-shadow);
-            border-radius: 0.75rem;
+            border-radius: 1rem;
 
-            --chart-sensor: #c41700;
-            --chart-control: #00c488;
-            --chart-integral: #c49600;
+            --chart-sensor: #ff4b3e;
+            --chart-control: #00d1a0;
+            --chart-integral: #ffb300;
             --chart-text: var(--text-color);
+            --chart-grid: var(--text-color-inactive);
+
+            font-size: 0.7rem;
+            letter-spacing: 0.03em;
         }
 
         .chart[data-loading=true] {
