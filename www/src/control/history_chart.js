@@ -11,9 +11,10 @@ export class HistoryChart extends Chart {
                 controlAxis: {side: "left", cssVar: "--chart-text", ticks: 10, suggestedMin: 0, suggestedMax: 1},
             },
             series: [
+                {field: "target", cssVar: "--chart-target", axis: "sensorAxis", style: "dash"},
                 {field: "sensor", cssVar: "--chart-sensor", axis: "sensorAxis"},
                 {field: "control", cssVar: "--chart-control", axis: "controlAxis"},
-                {field: "integral", cssVar: "--chart-integral", axis: "controlAxis", style: "dash"}
+                {field: "integral", cssVar: "--chart-integral", axis: "controlAxis", style: "dash"},
             ],
             data: null
         };
@@ -50,7 +51,10 @@ export class HistoryChart extends Chart {
             }
         }
 
+        const target = window.__app.app.config.pid?.target ?? 0;
+
         const values = {
+            target: new Array(ordered.length).fill(target),
             sensor: ordered.map(e => e.sensor),
             control: ordered.map(e => e.control),
             integral: ordered.map(e => e.integral)

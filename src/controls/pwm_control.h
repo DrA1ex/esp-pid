@@ -37,6 +37,4 @@ protected:
     void update_value(float value);
     void set_state(bool state);
     void write_pin();
-
-    void on_switch();
 };
