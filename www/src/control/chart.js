@@ -113,6 +113,11 @@ export class Chart extends Control {
         if (axisCfg.suggestedMin !== undefined) min = Math.min(axisCfg.suggestedMin, min);
         if (axisCfg.suggestedMax !== undefined) max = Math.max(axisCfg.suggestedMax, max);
 
+        if (min === max) {
+            min *= 0.95;
+            max *= 1.05;
+        }
+
         const yMin = min;
         const yMax = max;
         const scaleY = plotHeight / (yMax - yMin);

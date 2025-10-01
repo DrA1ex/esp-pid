@@ -84,6 +84,7 @@ export const PropertyConfig = [{
         {key: "pid.p", title: "kP", type: "float", kind: "Float32", cmd: PacketType.PID_P, transform: fix_float},
         {key: "pid.i", title: "kI", type: "float", kind: "Float32", cmd: PacketType.PID_I, transform: fix_float},
         {key: "pid.d", title: "kD", type: "float", kind: "Float32", cmd: PacketType.PID_D, transform: fix_float},
+        {key: "pid.kMul", title: "Multiplier", type: "float", kind: "Float32", cmd: PacketType.PID_K_MUL, transform: fix_float},
 
         {type: "title", label: "Output Limits"},
         {key: "pid.outMax", title: "Max Output", type: "float", kind: "Float32", cmd: PacketType.PID_OUT_MAX, transform: fix_float},

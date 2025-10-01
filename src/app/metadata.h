@@ -24,9 +24,10 @@ DECLARE_META(PidConfigMeta, AppMetaProperty,
     MEMBER(Parameter<float>, i),
     MEMBER(Parameter<float>, d),
 
+    MEMBER(Parameter<float>, k_mul),
+    MEMBER(Parameter<float>, kbc),
     MEMBER(Parameter<float>, out_max),
     MEMBER(Parameter<float>, out_min),
-    MEMBER(Parameter<float>, kbc),
 
     MEMBER(Parameter<uint8_t>, p_mode),
     MEMBER(Parameter<uint8_t>, i_mode),
@@ -120,6 +121,14 @@ inline ConfigMetadata build_metadata(Config &config, RuntimeInfo &runtime_info) 
                     PacketType::PID_D,
                     &config.regulator.pid.d
                 },
+                .k_mul = {
+                    PacketType::PID_K_MUL,
+                    &config.regulator.pid.k_mul
+                },
+                .kbc = {
+                    PacketType::PID_KBC,
+                    &config.regulator.pid.kbc
+                },
                 .out_max = {
                     PacketType::PID_OUT_MAX,
                     &config.regulator.pid.out_max
@@ -127,10 +136,6 @@ inline ConfigMetadata build_metadata(Config &config, RuntimeInfo &runtime_info) 
                 .out_min = {
                     PacketType::PID_OUT_MIN,
                     &config.regulator.pid.out_min
-                },
-                .kbc = {
-                    PacketType::PID_KBC,
-                    &config.regulator.pid.kbc
                 },
                 .p_mode = {
                     PacketType::PID_P_MODE,

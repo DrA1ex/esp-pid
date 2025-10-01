@@ -134,8 +134,8 @@ void Application::_load() {
     _pid->setDt(pid_cfg.interval);
 
     // Set output limits
-    _pid->outMax = pid_cfg.out_max;
-    _pid->outMin = pid_cfg.out_min;
+    _pid->outMax = pid_cfg.out_max * pid_cfg.k_mul;
+    _pid->outMin = pid_cfg.out_min * pid_cfg.k_mul;
 
     // Set back calculation coefficient
     _pid->Kbc = pid_cfg.kbc;
@@ -223,7 +223,7 @@ void Application::_service_loop() {
 
     float out = 0;
     if (_state == AppState::ACTIVE) {
-        out = _pid->compute(value) / (float)PID_CONTROL_MAX;
+        out = _pid->compute(value) / config().regulator.pid.k_mul;
     }
 
     _control->set_value(out);
@@ -234,7 +234,7 @@ void Application::_service_loop() {
     _runtime_info.history.entries[_runtime_info.history.index] = {
         .sensor = value,
         .control = out,
-        .integral = _pid->integral / (float)PID_CONTROL_MAX,
+        .integral = _pid->integral / config().regulator.pid.k_mul * _pid->Ki
     };
 
     _runtime_info.history.sensor_min = std::min(_runtime_info.history.sensor_min, value);

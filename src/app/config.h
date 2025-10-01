@@ -69,9 +69,10 @@ struct __attribute__((packed)) PidConfig {
     float i = 0.05; // Integral coefficient (Ki)
     float d = 0;    // Differential coefficient (Kd)
 
-    float kbc = 0;       // Back calculation coefficient (Kbc)
-    float out_max = 255; // Maximum output
-    float out_min = 0;   // Minimum output
+    float k_mul = PID_CONTROL_K; // Output multiplier
+    float kbc = 0;               // Back calculation coefficient (Kbc)
+    float out_max = 1.0f;        // Maximum output
+    float out_min = 0;           // Minimum output
 
     ProportionalMode p_mode = ProportionalMode::P_ERROR;   // Proportional mode
     IntegralMode i_mode = IntegralMode::I_KI_OUTSIDE;      // Integral mode

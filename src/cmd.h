@@ -33,6 +33,7 @@ MAKE_ENUM(PacketType, uint8_t,
     PID_I_LIMIT, 0x4B,
     PID_D_MODE, 0x4C,
     PID_DIRECTION, 0x4D,
+    PID_K_MUL, 0x4E,
 
     SYS_CONFIG_MDNS_NAME, 0x60,
 
