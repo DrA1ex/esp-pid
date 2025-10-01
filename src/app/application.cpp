@@ -223,7 +223,7 @@ void Application::_service_loop() {
 
     float out = 0;
     if (_state == AppState::ACTIVE) {
-        out = _pid->compute(value) / 255.f;
+        out = _pid->compute(value) / (float)PID_CONTROL_MAX;
     }
 
     _control->set_value(out);
@@ -234,8 +234,11 @@ void Application::_service_loop() {
     _runtime_info.history.entries[_runtime_info.history.index] = {
         .sensor = value,
         .control = out,
-        .integral = _pid->integral,
+        .integral = _pid->integral / (float)PID_CONTROL_MAX,
     };
+
+    _runtime_info.history.sensor_min = std::min(_runtime_info.history.sensor_min, value);
+    _runtime_info.history.sensor_max = std::max(_runtime_info.history.sensor_max, value);
 
     _runtime_info.history.index = (_runtime_info.history.index + 1) % HISTORY_COUNT;
 

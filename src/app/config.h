@@ -69,7 +69,7 @@ struct __attribute__((packed)) PidConfig {
     float i = 0.05; // Integral coefficient (Ki)
     float d = 0;    // Differential coefficient (Kd)
 
-    float kbc = 0;      // Back calculation coefficient (Kbc)
+    float kbc = 0;       // Back calculation coefficient (Kbc)
     float out_max = 255; // Maximum output
     float out_min = 0;   // Minimum output
 
@@ -77,7 +77,7 @@ struct __attribute__((packed)) PidConfig {
     IntegralMode i_mode = IntegralMode::I_KI_OUTSIDE;      // Integral mode
     IntegralLimitMode i_limit = IntegralLimitMode::I_NONE; // Integral limit mode
     DifferentialMode d_mode = DifferentialMode::D_ERROR;   // Differential mode
-    DirectionMode direction = DirectionMode::PID_FORWARD; // Direction mode
+    DirectionMode direction = DirectionMode::PID_FORWARD;  // Direction mode
 };
 
 struct __attribute ((packed)) RegulatorConfig {
@@ -103,6 +103,9 @@ struct __attribute ((packed)) HistoryEntry {
 
 struct __attribute ((packed)) DataHistory {
     const uint16_t count = HISTORY_COUNT;
+
+    float sensor_min = INFINITY;
+    float sensor_max = -INFINITY;
 
     uint16_t index = 0;
     HistoryEntry entries[HISTORY_COUNT]{};

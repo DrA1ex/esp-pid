@@ -94,9 +94,9 @@ export class Config extends AppConfigBase {
             i: parser.readFloat32(),
             d: parser.readFloat32(),
 
+            kbc: parser.readFloat32(),
             outMax: parser.readFloat32(),
             outMin: parser.readFloat32(),
-            kbc: parser.readFloat32(),
 
             pMode: parser.readUint8(),
             iMode: parser.readUint8(),

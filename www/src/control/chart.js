@@ -1,24 +1,36 @@
-import {BinaryParser, Control} from "../lib/index.js";
+import {Control} from "../lib/index.js";
 
 export class Chart extends Control {
     #ctx;
     #canvas;
     #ratio = window.devicePixelRatio || 1;
-    #data = null;
+    #config = null;
 
-    constructor(element) {
+    constructor(element, config) {
         super(element);
 
         this.#canvas = element;
         this.#ctx = element.getContext("2d");
         this.addClass("chart");
 
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        this.#config = config;
+
+        // re-render on color scheme change
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
             this.render();
         });
 
         window.addEventListener("resize", this.#resize.bind(this));
         setTimeout(() => this.#resize(), 0);
+    }
+
+    setConfig(config) {
+        this.#config = config;
+        this.render();
+    }
+
+    get config() {
+        return this.#config;
     }
 
     #resize() {
@@ -32,102 +44,116 @@ export class Chart extends Control {
         this.render();
     }
 
-    setValue(value) {
-        if (!value) return;
-        
-        const parser = new BinaryParser(value.buffer, value.byteOffset);
-        const result = {
-            count: parser.readUint16(),
-            index: parser.readUint16(),
-        }
-
-        result.entries = new Array(result.count)
-        for (let i = 0; i < result.count; i++) {
-            result.entries[i] = {
-                sensor: parser.readFloat32(),
-                control: parser.readFloat32(),
-                integral: parser.readFloat32(),
-            }
-        }
-
-        this.#data = result;
-        this.render();
-    }
-
     render() {
-        if (!this.#data) return;
+        if (!this.#config || !this.#config.data) return;
+
         const ctx = this.#ctx;
-        const {count, index, entries} = this.#data;
+        const {margins, axes, series, data} = Object.assign({
+            margins: {left: 40, right: 40, top: 10, bottom: 10},
+            series: [],
+            axes: {
+                "default": {side: "right", ticks: 5}
+            },
+            data: null
+        }, this.#config);
 
-        const {width: w, height: h} = this.#canvas.getBoundingClientRect();
-        ctx.clearRect(0, 0, w, h);
-        ctx.lineJoin = 'round';
+        const width = this.#canvas.width / this.#ratio;
+        const height = this.#canvas.height / this.#ratio;
 
-        const margins = {left: 40, right: 40, top: 10, bottom: 10};
-        const plotW = w - margins.left - margins.right;
-        const plotH = h - margins.top - margins.bottom;
+        ctx.clearRect(0, 0, width, height);
+        ctx.lineJoin = "round";
 
-        const ordered = this.#getOrderedEntries(entries, count, index);
-        const toX = i => margins.left + i * (plotW / (count - 1));
+        const plotWidth = width - margins.left - margins.right;
+        const plotHeight = height - margins.top - margins.bottom;
 
-        // Draw sensor and control lines
-        this.#drawSeries(ordered.map(e => e.sensor), "--chart-sensor", toX, margins, plotH, ctx);
-        this.#drawSeries(ordered.map(e => e.control), "--chart-control", toX, margins, plotH, ctx);
-        this.#drawSeries(ordered.map(e => e.integral), "--chart-integral", toX, margins, plotH, ctx);
+        const toX = i => margins.left + i * (plotWidth / (data.count - 1));
 
-        // Draw axes
-        this.#drawAxis(ctx, ordered.map(e => e.sensor), margins, plotH, "--chart-text", "left", w);
-        this.#drawAxis(ctx, ordered.map(e => e.control), margins, plotH, "--chart-text", "right", w);
-    }
+        // Compute scales for each axis
+        const axisScales = {};
+        for (const axisName in axes) {
+            const values = series
+                .filter(s => s.axis === axisName)
+                .flatMap(s => data.values[s.field]);
 
-    #getOrderedEntries(entries, count, index) {
-        const ordered = [];
-        for (let i = 0; i < count; i++) {
-            const pos = (index + i) % count;
-            const entry = entries[pos];
-            if (!Number.isNaN(entry.sensor) && !Number.isNaN(entry.control)) {
-                ordered.push(entry);
-            }
+            axisScales[axisName] = this.#computeScale(values, plotHeight, axes[axisName]);
         }
-        return ordered;
+
+        // Draw all series
+        for (const s of series) {
+            const scale = axisScales[s.axis || "default"];
+            const color = getComputedStyle(this.#canvas).getPropertyValue(s.cssVar).trim() || "black";
+            this.#drawSeries(
+                data.values[s.field],
+                color,
+                toX,
+                margins,
+                plotHeight,
+                ctx,
+                scale
+            );
+        }
+
+        // Draw all axes
+        for (const axisName in axes) {
+            this.#drawAxis(
+                ctx,
+                axisScales[axisName],
+                axes[axisName],
+                margins,
+                plotHeight,
+                width
+            );
+        }
     }
 
-    #computeScale(values, plotH) {
-        const min = Math.min(...values);
-        const max = Math.max(...values);
-        const pad = (max - min) * 0.1 || 1;
-        const yMin = min - pad;
-        const yMax = max + pad;
-        const scaleY = plotH / (yMax - yMin);
+    #computeScale(values, plotHeight, axisCfg) {
+        let min = Math.min(...values);
+        let max = Math.max(...values);
+
+        if (axisCfg.suggestedMin !== undefined) min = Math.min(axisCfg.suggestedMin, min);
+        if (axisCfg.suggestedMax !== undefined) max = Math.max(axisCfg.suggestedMax, max);
+
+        const yMin = min;
+        const yMax = max;
+        const scaleY = plotHeight / (yMax - yMin);
+
         return {yMin, yMax, scaleY};
     }
 
-    #drawSeries(values, cssVar, toX, margins, plotH, ctx) {
-        const {yMin, scaleY} = this.#computeScale(values, plotH);
-        const toY = v => margins.top + plotH - (v - yMin) * scaleY;
+    #drawSeries(values, strokeStyle, toX, margins, plotHeight, ctx, scale) {
+        const {yMin, scaleY} = scale;
+        const toY = v => margins.top + plotHeight - (v - yMin) * scaleY;
 
-        ctx.strokeStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
+        ctx.strokeStyle = strokeStyle;
         ctx.lineWidth = 2;
         ctx.beginPath();
+
         values.forEach((val, i) => {
             const x = toX(i);
             const y = toY(val);
-            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
         });
+
         ctx.stroke();
     }
 
-    #drawAxis(ctx, values, margins, plotH, cssVar, align, w) {
-        const {yMin, yMax} = this.#computeScale(values, plotH);
-        ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue(cssVar).trim();
+    #drawAxis(ctx, scale, axisCfg, margins, plotHeight, width) {
+        const {yMin, yMax} = scale;
+
+        ctx.fillStyle = getComputedStyle(this.#canvas).getPropertyValue(axisCfg.cssVar).trim() || "black";
         ctx.font = "0.65rem sans-serif";
-        ctx.textAlign = align;
+        ctx.textAlign = axisCfg.side ?? "left";
         ctx.textBaseline = "middle";
 
-        for (let i = 0; i <= 5; i++) {
-            const val = yMax - (i / 5) * (yMax - yMin);
-            const y = margins.top + (plotH / 5) * i;
-            const x = align === "left" ? 2 : w - 2;
+        const ticks = axisCfg.ticks ?? 5;
+        for (let i = 0; i <= ticks; i++) {
+            const val = yMax - (i / ticks) * (yMax - yMin);
+
+            const y = margins.top + (plotHeight / ticks) * i;
+            const x = axisCfg.side === "left" ? 2 : width - 2;
+
             ctx.fillText(val.toFixed(2), x, y);
         }
     }

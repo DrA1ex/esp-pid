@@ -1,4 +1,4 @@
-import {ApplicationBase, BinaryParser} from "./lib/index.js";
+import {ApplicationBase} from "./lib/index.js";
 import {Config} from "./config.js";
 import {PropertyConfig} from "./props.js";
 
@@ -12,7 +12,7 @@ import {
 } from "./constants.js";
 
 import {PacketType} from "./cmd.js";
-import {Chart} from "./control/chart.js";
+import {HistoryChart} from "./control/history_chart.js";
 
 export class Application extends ApplicationBase {
     #config;
@@ -51,7 +51,7 @@ export class Application extends ApplicationBase {
 
     buildControl(prop) {
         if (prop.type === "chart") {
-            return new Chart(document.createElement("canvas"));
+            return new HistoryChart(document.createElement("canvas"));
         }
 
         return super.buildControl(prop);
