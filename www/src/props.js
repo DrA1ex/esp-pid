@@ -38,6 +38,8 @@ export const PropertyConfig = [{
 }, {
     key: "general", section: "General", props: [
         {key: "power", type: "trigger", title: "Power", kind: "Boolean", cmd: PacketType.POWER},
+        {key: "pid.target", title: "Target Value", type: "float", kind: "Float32", cmd: PacketType.PID_TARGET},
+        {key: "pid.interval", title: "Refresh Interval (ms)", type: "int", kind: "Uint16", cmd: PacketType.PID_INTERVAL},
     ],
 }, {
     key: "night_mode", section: "Night Mode", collapse: true, props: [
@@ -77,14 +79,12 @@ export const PropertyConfig = [{
     ]
 }, {
     key: "pid", section: "PID-R", collapse: true, props: [
-        {key: "pid.target", title: "Target Value", type: "float", kind: "Float32", cmd: PacketType.PID_TARGET},
-        {key: "pid.interval", title: "Refresh Interval (ms)", type: "int", kind: "Uint16", cmd: PacketType.PID_INTERVAL},
+        {key: "pid.kMul", title: "Multiplier", type: "float", kind: "Float32", cmd: PacketType.PID_K_MUL, transform: fix_float},
 
         {type: "title", label: "Coefficients"},
         {key: "pid.p", title: "kP", type: "float", kind: "Float32", cmd: PacketType.PID_P, transform: fix_float},
         {key: "pid.i", title: "kI", type: "float", kind: "Float32", cmd: PacketType.PID_I, transform: fix_float},
         {key: "pid.d", title: "kD", type: "float", kind: "Float32", cmd: PacketType.PID_D, transform: fix_float},
-        {key: "pid.kMul", title: "Multiplier", type: "float", kind: "Float32", cmd: PacketType.PID_K_MUL, transform: fix_float},
 
         {type: "title", label: "Output Limits"},
         {key: "pid.outMax", title: "Max Output", type: "float", kind: "Float32", cmd: PacketType.PID_OUT_MAX, transform: fix_float},
